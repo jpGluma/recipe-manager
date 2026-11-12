@@ -6,3 +6,12 @@ dist-ssr
 .env
 .env.local
 .vscode
+
+# JSON Server snapshots
+db-*.json
+
+# TypeScript generated files
+*.tsbuildinfo
+
+# Build output
+dist/
