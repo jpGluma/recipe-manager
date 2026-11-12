@@ -13,16 +13,20 @@ export interface Meal {
 }
 
 /** What our components use. No `str` prefixes, ingredients already flat. */
+
 export interface Recipe {
   mealId: string;
   title: string;
   category: string;
   thumb: string;
   ingredients: string[];
+  measures?: string[];
+  instructions?: string;
   time: number;
   notes: string;
   favorite: boolean;
 }
+
 
 // A miss is `{ "meals": null }` with status 200 — a success with no results.
 // Typing it as nullable is what forces every caller to deal with that.

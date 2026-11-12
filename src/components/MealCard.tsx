@@ -1,4 +1,6 @@
+
 import type { Recipe } from "../features/meals/meals.types";
+import { Link } from "react-router-dom";
 
 interface MealCardProps {
   meal: Recipe;
@@ -32,6 +34,13 @@ export default function MealCard({
         </div>
 
         <div className="card-actions justify-end mt-2">
+          <Link
+            to={`/recipe/${meal.mealId}`}
+            className="btn btn-sm btn-outline"
+          >
+            Open Recipe
+          </Link>
+
           <button
             type="button"
             className="btn btn-sm btn-primary"

@@ -1,8 +1,12 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { searchMeals, getCategories } from "./meals.api";
+import {
+  searchMeals,
+  getCategories,
+  getMealById,
+} from "./meals.api";
 
-// TODO 6 — Search TheMealDB
+
 export function useSearchMeals(term: string) {
   return useQuery({
     queryKey: ["meals", term],
@@ -11,10 +15,18 @@ export function useSearchMeals(term: string) {
   });
 }
 
-// TODO 7 — Get categories
+
 export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
+  });
+}
+
+export function useMeal(mealId: string) {
+  return useQuery({
+    queryKey: ["meal", mealId],
+    queryFn: () => getMealById(mealId),
+    enabled: Boolean(mealId),
   });
 }

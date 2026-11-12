@@ -1,54 +1,60 @@
-  import type {
+
+import { savedRecipesApi } from "../../lib/api";
+import type {
   SavedRecipe,
   NewRecipe,
   RecipePatch,
 } from "./recipes.types";
 
-const KEY = "saved-recipes";
-
-const read = (): SavedRecipe[] => {
-  try {
-    return JSON.parse(
-      localStorage.getItem(KEY) ?? "[]"
-    ) as SavedRecipe[];
-  } catch {
-    return [];
-  }
+type ApiRecipe = Omit<SavedRecipe, "id"> & {
+  id: string | number;
 };
 
-const write = (rows: SavedRecipe[]) =>
-  localStorage.setItem(KEY, JSON.stringify(rows));
+function normalizeRecipe(recipe: ApiRecipe): SavedRecipe {
+  return {
+    ...recipe,
+    id: String(recipe.id),
+    ingredients: recipe.ingredients ?? [],
+    measures: recipe.measures ?? [],
+    instructions: recipe.instructions ?? "",
+  };
+}
 
-export const getRecipes = async (): Promise<SavedRecipe[]> =>
-  read();
+// GET: Retrieve saved recipes from JSON Server
+export const getRecipes = async (): Promise<SavedRecipe[]> => {
+  const response = await savedRecipesApi.get<ApiRecipe[]>("/recipes");
+  return response.data.map(normalizeRecipe);
+};
 
+// POST: Save a new recipe
 export const createRecipe = async (
   recipe: NewRecipe
 ): Promise<SavedRecipe> => {
-  const row: SavedRecipe = {
-    ...recipe,
-    id: crypto.randomUUID(),
-  };
+  const response = await savedRecipesApi.post<ApiRecipe>(
+    "/recipes",
+    recipe
+  );
 
-  write([...read(), row]);
-  return row;
+  return normalizeRecipe(response.data);
 };
 
+// PATCH: Update an existing recipe
 export const updateRecipe = async ({
   id,
   ...patch
 }: RecipePatch): Promise<SavedRecipe> => {
-  const rows = read().map((r) =>
-    r.id === id ? { ...r, ...patch } : r
+  const response = await savedRecipesApi.patch<ApiRecipe>(
+    `/recipes/${id}`,
+    patch
   );
 
-  write(rows);
-  return rows.find((r) => r.id === id)!;
+  return normalizeRecipe(response.data);
 };
 
+// DELETE: Remove a saved recipe
 export const deleteRecipe = async (
   id: string
 ): Promise<{ id: string }> => {
-  write(read().filter((r) => r.id !== id));
+  await savedRecipesApi.delete(`/recipes/${id}`);
   return { id };
 };
